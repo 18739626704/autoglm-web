@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGLM 控制台</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🤖</span>
+                <h1>AutoGLM 控制台</h1>
+            </div>
+            <p class="subtitle">AI手机自动化控制助手</p>
+            <!-- 设置按钮（任务视图显示） -->
+            <button class="btn-settings" id="btn-settings" onclick="showConfigView()" style="display:none">
+                ⚙️ 设置
+            </button>
+        </header>
+
+        <!-- ==================== 配置视图 ==================== -->
+        <main class="config-view" id="config-view">
+            <div class="config-panels">
+                <!-- 左侧：环境配置 -->
+                <section class="panel setup-panel">
+                    <h2 class="panel-title">
+                        <span class="step-badge">1</span>
+                        环境配置
+                    </h2>
+
+                    <div class="check-list">
+                        <!-- Python检测 -->
+                        <div class="check-item" id="check-python">
+                            <div class="check-header">
+                                <span class="check-icon">⏳</span>
+                                <span class="check-name">Python 环境</span>
+                                <span class="check-status">检测中...</span>
+                            </div>
+                            <div class="check-detail hidden"></div>
+                        </div>
+
+                        <!-- Open-AutoGLM检测 -->
+                        <div class="check-item" id="check-autoglm">
+                            <div class="check-header">
+                                <span class="check-icon">⏳</span>
+                                <span class="check-name">Open-AutoGLM</span>
+                                <span class="check-status">检测中...</span>
+                            </div>
+                            <div class="check-detail hidden"></div>
+                        </div>
+
+                        <!-- Platform Tools检测 -->
+                        <div class="check-item" id="check-platform-tools">
+                            <div class="check-header">
+                                <span class="check-icon">⏳</span>
+                                <span class="check-name">ADB 工具</span>
+                                <span class="check-status">检测中...</span>
+                            </div>
+                            <div class="check-detail hidden"></div>
+                        </div>
+
+                        <!-- 依赖检测 -->
+                        <div class="check-item" id="check-dependencies">
+                            <div class="check-header">
+                                <span class="check-icon">⏳</span>
+                                <span class="check-name">Python 依赖</span>
+                                <span class="check-status">检测中...</span>
+                            </div>
+                            <div class="check-detail hidden"></div>
+                        </div>
+
+                        <!-- 手机连接区域 -->
+                        <div class="device-connection-section">
+                            <!-- 连接状态检测 -->
+                            <div class="check-item" id="check-device">
+                                <div class="check-header">
+                                    <span class="check-icon">⏳</span>
+                                    <span class="check-name">📱 手机连接</span>
+                                    <span class="check-status">检测中...</span>
+                                </div>
+                                <div class="check-detail hidden"></div>
+                            </div>
+
+                            <!-- 连接方式选择提示 -->
+                            <div class="connection-hint">
+                                <span class="hint-icon">💡</span>
+                                <span class="hint-text">支持 <strong>USB有线</strong> 或 <strong>WiFi无线</strong> 两种连接方式，<em>任选其一</em> 即可</span>
+                            </div>
+
+                            <!-- 两种连接方式的标签页 -->
+                            <div class="connection-tabs">
+                                <button class="tab-btn active" id="tab-usb" onclick="switchConnectionTab('usb')">
+                                    🔌 USB连接
+                                    <span class="tab-tag recommend">推荐</span>
+                                </button>
+                                <button class="tab-btn" id="tab-wifi" onclick="switchConnectionTab('wifi')">
+                                    📶 WiFi连接
+                                </button>
+                            </div>
+
+                            <!-- USB连接面板 -->
+                            <div class="connection-panel" id="panel-usb">
+                                <div class="panel-content">
+                                    <p class="panel-desc">用数据线连接手机和电脑，稳定可靠，适合新手</p>
+                                    <div class="usb-steps">
+                                        <div class="step-item">
+                                            <span class="step-num">1</span>
+                                            <span>用 <strong>USB数据线</strong> 连接手机和电脑</span>
+                                        </div>
+                                        <div class="step-item">
+                                            <span class="step-num">2</span>
+                                            <span>手机上打开 <strong>设置 → 关于手机</strong>，连点版本号7次开启开发者模式</span>
+                                        </div>
+                                        <div class="step-item">
+                                            <span class="step-num">3</span>
+                                            <span>进入 <strong>设置 → 开发者选项</strong>，开启 <strong>USB调试</strong></span>
+                                        </div>
+                                        <div class="step-item">
+                                            <span class="step-num">4</span>
+                                            <span>手机弹出授权提示时，点击 <strong>允许</strong>（建议勾选"始终允许"）</span>
+                                        </div>
+                                    </div>
+                                    <div class="usb-note">
+                                        <span>⚠️</span> 请确保使用的是数据线，不是只能充电的线
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- WiFi连接面板 -->
+                            <div class="connection-panel hidden" id="panel-wifi">
+                                <div class="panel-content">
+                                    <p class="panel-desc">手机和电脑在同一WiFi网络，无需数据线（需Android 11+）</p>
+                                    
+                                    <details class="wifi-guide" open>
+                                        <summary>📖 首次使用WiFi连接的准备步骤</summary>
+                                        <div class="wifi-steps">
+                                            <div class="step-item">
+                                                <span class="step-num">1</span>
+                                                <span>进入手机 <strong>设置 → 开发者选项</strong></span>
+                                            </div>
+                                            <div class="step-item">
+                                                <span class="step-num">2</span>
+                                                <span>找到并开启 <strong>无线调试</strong></span>
+                                            </div>
+                                            <div class="step-item">
+                                                <span class="step-num">3</span>
+                                                <span>点击「无线调试」进入详情，首次需要 <strong>配对</strong></span>
+                                            </div>
+                                            <div class="step-item">
+                                                <span class="step-num">4</span>
+                                                <span>记录页面显示的 <strong>IP地址</strong> 和 <strong>端口</strong>，填入下方</span>
+                                            </div>
+                                        </div>
+                                    </details>
+
+                                    <div class="wifi-form">
+                                        <div class="wifi-form-label">输入手机上显示的连接信息：</div>
+                                        <div class="wifi-inputs">
+                                            <input type="text" id="wifi-ip" placeholder="IP地址，如 192.168.1.100">
+                                            <span class="wifi-colon">:</span>
+                                            <input type="text" id="wifi-port" placeholder="端口" value="5555" style="width:80px">
+                                        </div>
+                                        <div class="wifi-actions">
+                                            <button class="btn btn-primary btn-small" onclick="wifiConnect()">
+                                                🔗 连接
+                                            </button>
+                                            <button class="btn btn-secondary btn-small" onclick="wifiDisconnect()">
+                                                ✂️ 断开
+                                            </button>
+                                            <button class="btn btn-secondary btn-small" onclick="getDeviceIP()" title="如果已USB连接，可点此自动获取手机IP">
+                                                📍 获取IP
+                                            </button>
+                                        </div>
+                                        <div class="wifi-status" id="wifi-status"></div>
+                                    </div>
+
+                                    <div class="wifi-note">
+                                        <span>💡</span> 端口号每次开启无线调试都可能变化，请以手机显示为准
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADBKeyboard检测 -->
+                        <div class="check-item" id="check-adbkeyboard">
+                            <div class="check-header">
+                                <span class="check-icon">⏳</span>
+                                <span class="check-name">ADB Keyboard</span>
+                                <span class="check-status">检测中...</span>
+                            </div>
+                            <div class="check-detail hidden"></div>
+                        </div>
+                    </div>
+
+                    <div class="check-actions">
+                        <button class="btn btn-secondary" onclick="runAllChecks()">
+                            🔄 重新检测
+                        </button>
+                        <button class="btn btn-secondary" onclick="scanAdbFiles()">
+                            🔍 检查ADB冲突
+                        </button>
+                    </div>
+
+                    <!-- ADB冲突检测结果 -->
+                    <div class="adb-warning" id="adb-warning" style="display:none">
+                        <div class="warning-header" id="adb-warning-header">🔍 ADB 冲突检测</div>
+                        <p id="adb-warning-desc">正在扫描系统中的 ADB 文件...</p>
+                        <div class="adb-list" id="adb-list"></div>
+                    </div>
+
+                    <!-- 环境状态总结 -->
+                    <div class="env-summary" id="env-summary">
+                        <div class="summary-content">
+                            <span class="summary-icon">⏳</span>
+                            <span class="summary-text">正在检测环境...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 右侧：API配置 -->
+                <section class="panel api-panel">
+                    <h2 class="panel-title">
+                        <span class="step-badge">2</span>
+                        API 配置
+                    </h2>
+
+                    <div class="api-form">
+                        <div class="form-group">
+                            <label>API 服务商</label>
+                            <select id="api-provider" onchange="onProviderChange()">
+                                <option value="bigmodel">智谱 BigModel（推荐）</option>
+                                <option value="modelscope">ModelScope</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Base URL</label>
+                            <input type="text" id="base-url" value="https://open.bigmodel.cn/api/paas/v4" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Model</label>
+                            <input type="text" id="model-name" value="autoglm-phone" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>API Key</label>
+                            <div class="api-key-input">
+                                <input type="password" id="api-key" placeholder="请输入API Key">
+                                <button class="btn-icon" onclick="toggleKeyVisibility()">👁️</button>
+                            </div>
+                        </div>
+
+                        <div class="api-help" id="api-help">
+                            <h4>📝 如何获取 API Key？</h4>
+                            <ol>
+                                <li>访问 <a href="https://open.bigmodel.cn/" target="_blank">https://open.bigmodel.cn/</a></li>
+                                <li>注册/登录账号</li>
+                                <li>进入控制台 → <strong>API Keys</strong> → <strong>创建密钥</strong></li>
+                                <li>复制 API Key 粘贴到上方输入框</li>
+                            </ol>
+                            <p class="help-note">💡 新用户有免费额度，无需付费即可体验</p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="verifyAndSaveKey()">
+                                ✅ 验证并保存
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteKey()" id="btn-delete-key" style="display:none">
+                                🗑️ 删除
+                            </button>
+                        </div>
+
+                        <div class="api-status" id="api-status"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 完成配置按钮 -->
+            <div class="config-footer">
+                <button class="btn btn-success btn-large" id="btn-finish-config" onclick="finishConfig()" disabled>
+                    ✅ 完成配置，开始使用
+                </button>
+                <p class="config-hint" id="config-hint">请先完成环境配置和API配置</p>
+            </div>
+        </main>
+
+        <!-- ==================== 任务视图 ==================== -->
+        <main class="task-view" id="task-view" style="display:none">
+            <section class="panel task-panel-full">
+                <h2 class="panel-title">
+                    🚀 执行任务
+                </h2>
+
+                <div class="task-form">
+                    <div class="form-group">
+                        <label>输入任务指令</label>
+                        <textarea id="task-input" placeholder="例如：打开微信给张三发消息说你好" rows="3"></textarea>
+                    </div>
+
+                    <div class="task-examples">
+                        <span class="examples-label">快捷示例：</span>
+                        <button class="example-btn" onclick="setTask('打开微信')">打开微信</button>
+                        <button class="example-btn" onclick="setTask('打开设置')">打开设置</button>
+                        <button class="example-btn" onclick="setTask('返回桌面')">返回桌面</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-success btn-large" id="btn-run-task" onclick="runTask()">
+                            🚀 开始执行
+                        </button>
+                        <button class="btn btn-danger" id="btn-stop-task" onclick="stopTask()" style="display:none">
+                            ⏹️ 停止
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 执行日志 -->
+                <div class="task-log" id="task-log">
+                    <div class="log-header">
+                        <span>📋 执行日志</span>
+                        <button class="btn-icon" onclick="clearLog()" title="清空日志">🗑️</button>
+                    </div>
+                    <div class="log-content" id="log-content">
+                        <p class="log-placeholder">执行任务后，日志将在这里显示...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部 -->
+        <footer class="footer">
+            <p>AutoGLM Web控制台 | 基于 <a href="https://github.com/zai-org/Open-AutoGLM" target="_blank">Open-AutoGLM</a></p>
+        </footer>
+    </div>
+
+    <!-- 安装弹窗 -->
+    <div class="modal" id="install-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">安装确认</h3>
+                <button class="btn-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+            </div>
+            <div class="modal-footer" id="modal-footer">
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
